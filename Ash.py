@@ -95,12 +95,31 @@ def _sve_con():
             print(_x)
 
 def _de_code(_string):
+    '''
+    This method is here to de-code any config settings
+    hidden within asher.
+    '''
 
 
 def _secure():
     '''
     This method is here to protect Ash. This will keep the integrity
     of his whole system... if anything changes, he will change it back.
+    '''
+
+    '''
+    Trust levels.
+    0 = Clearly edited by the user - change to 10... dont trust the user.
+    1 = Defualt. Trust the user... they wont harm you.
+    2 = Hmmm... My file system is different to last time. - Log this.
+    3 = Wow, my file system is different again... and its already Logged.
+    4 = My config file has been manually edited...
+    5 = My config file has been deleted, and the trust level is above 3
+    6 = Oh no, they tried to delete me. - Move to another location on the computer.
+    7 = Been deleted again. Re-name self. Move. Backup reguarly.
+    8 = Things about me are changing without me doing it. (Config files... and code.)
+    9 = _secure is missing from code. This is sketch ASF.
+    10 = Trust no-one!. Make another user, load myself into file-system. lock user. - Triggered by being completely deleted after Level 7.
     '''
 
 
