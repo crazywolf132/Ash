@@ -64,27 +64,6 @@ def _lod_con():
                 _sett_con.append(_tokens[1])
         _con_chck()
 
-def _con_chck():
-    global _ver
-    _con_ver = _sch_con("version", "_norm", True)
-    if _con_ver > _ver:
-        '''
-        Something strange is happening here... the value of the _con file
-        version number is greater than us... Lets check online if we have
-        an update... if not... then raise trust level.
-        '''
-        _slf_chnge("_Tlvl", "_t_2_")
-        _rem_con("", True)
-
-    elif _con_ver < _ver:
-        '''
-        We are newer than the _con file... lets wipe the con file...
-        and upload new defaults... but keeping information like trust level.
-        '''
-        _tlvl = _sch_con("trust_lev", "_norm", True)
-        _pos = _sch_con("trust_lev", "_def", False)
-
-        exit()
 
 def _sch_con(_setting, _cons, _ret):
     '''
@@ -130,10 +109,13 @@ def _set_con(_setting, _value):
 
 def _add_con(_setting, _value):
     '''
-    This method is here to add another config to the settings/
+    This method is here to add another cotnfig to the settings/
     '''
     _settings.append(_setting)
     _sett_con.append(_value)
+    _def_sett.append(_setting)
+    _def_con.append(_value)
+    _sve_con()
 
 def _rem_con(_setting, _all):
     global _settings
@@ -160,6 +142,8 @@ def _sve_con(_def):
         while _int < _len:
             _results.append("{0}={1}\n".format(_def_sett[_int], _def_con[_int]))
             _int += 1
+        _def_con[2] = _ver
+        _def_con[5] = _Tlvl
         with open(_con_file, 'w') as _out:
             for _x in _results:
                 _out.write(_x)
@@ -217,12 +201,173 @@ def _secure():
     9 = _secure is missing from code. This is sketch ASF.
     10 = Trust no-one!. Make another user, load myself into file-system. lock user. - Triggered by being completely deleted after Level 7.
     '''
-
     _trust_num = _sch_con("trust_lev", "_norm", False)
     _trust_val = _sch_con("trust_lev", "_norm", True)
-    print("need to finish _secure()")
+
+    global _Tlvl
+    global _ver
+    _con_ver = _sch_con("version", "_norm", True)
+    if _con_ver > _ver:
+        '''
+        Something strange is happening here... the value of the _con file
+        version number is greater than us... Lets check online if we have
+        an update... if not... then raise trust level.
+        '''
+        ## Check online version.
+        _O_ver = "1.2.2"
+        if _O_ver >
+    elif _con_ver < _ver:
+        '''
+        We are newer than the _con file... lets wipe the con file...
+        and upload new defaults... but keeping information like trust level...
+        This could be sketchy as the user could change the version number along
+        with the trust level... then it creates a Hole where the user can just change
+        the trust level without any repercusions.
+        '''
+        ## Lets just note that the version is different... if it happens again... change trust_lvl
+        _returned_con = _sch_con("_verError", "_norm", True)
+        _returned_lcl = _sch_con("_verError", "_def", True)
+        if _returned_lcl == "true" and _returned_con == "false":
+            '''
+            Raise trust_lev as we have found that they have manually changed the
+            con_file
+            '''
+            _up_tlvl()
+            _add_con("_verError", "true")
+        elif _returned_lcl == "false" and _returned_con == "true":
+            _add_con("_verError", "true")
+        elif _returned_lcl == "true" and _returned_con == "true":
+            _up_tlvl()
+        elif _returned_lcl == "false" and _returned_con == "false":
+            _add_con("_verError", "true")
+        elif _returned_lcl == "NONE" or _returned_con == "NONE":
+            _add_con("_verError", "true")
+
+    _L_tlvl = _load_tlvl(True)
+    _C_tlvl = _load_tlvl(False)
+    if _C_tlvl > _L_tlvl:
+        '''
+        Hmmm... this is strange... I have a lower trust_val to my config.
+        Lets assume i have the correct val... and push my current val...
+        but we will note this.
+        '''
+        _returned_con = _sch_con("_valError", "_norm", True)
+        _returned_lcl = _sch_con("_valError", "_def", True)
+        if _returned_lcl == "true" and _returned_con == "false":
+            '''
+            Raise trust_lev as we have found that they have manually changed the
+            con_file
+            '''
+            _up_tlvl()
+            _add_con("_valError", "true")
+        elif _returned_lcl == "false" and _returned_con == "true":
+            _add_con("_valError", "true")
+        elif _returned_lcl == "true" and _returned_con == "true":
+            _up_tlvl()
+        elif _returned_lcl == "false" and _returned_con == "false":
+            _add_con("_valError", "true")
+        elif _returned_lcl == "NONE" or _returned_con == "NONE":
+            _add_con("_valError", "true")
 
 
+    elif _C_tlvl < _L_tlvl:
+        '''
+        The trust_val in the config is lower than me... lets push my current
+        value to the config... then we will log it and see if it continues...
+        '''
+
+        _returned_con = _sch_con("_valError", "_norm", True)
+        _returned_lcl = _sch_con("_valError", "_def", True)
+        if _returned_lcl == "true" and _returned_con == "false":
+            '''
+            Raise trust_lev as we have found that they have manually changed the
+            con_file
+            '''
+            _up_tlvl()
+            _add_con("_valError", "true")
+        elif _returned_lcl == "false" and _returned_con == "true":
+            _add_con("_valError", "true")
+        elif _returned_lcl == "true" and _returned_con == "true":
+            _up_tlvl()
+        elif _returned_lcl == "false" and _returned_con == ""
+
+
+def _load_tlvl(_local):
+    global _Tlvl
+    if _local == True:
+        _t = _Tlvl
+        if _t == "_t_1_"
+            return 1
+        elif _t == "_t_2_":
+            return 2
+        elif _t == "_t_3_":
+            return 3
+        elif _t == "_t_4_":
+            return 4
+        elif _t == "_t_5_":
+            return 5
+        elif _t == "_t_6_":
+            return 6
+        elif _t == "_t_7_":
+            return 7
+        elif _t == "_t_8_":
+            return 8
+        elif _t == "_t_9_":
+            return 9
+        elif _t == "_t_10_":
+            return 10
+    else:
+        _t = _sch_con("trust_lev", "_norm", True)
+        if _t == "_t_1_"
+            return 1
+        elif _t == "_t_2_":
+            return 2
+        elif _t == "_t_3_":
+            return 3
+        elif _t == "_t_4_":
+            return 4
+        elif _t == "_t_5_":
+            return 5
+        elif _t == "_t_6_":
+            return 6
+        elif _t == "_t_7_":
+            return 7
+        elif _t == "_t_8_":
+            return 8
+        elif _t == "_t_9_":
+            return 9
+        elif _t == "_t_10_":
+            return 10
+
+def _up_tlvl():
+
+'''
+
+'''
+    global _Tlvl
+    _t = _Tlvl
+    if _t == "_t_1_"
+        _slf_chnge("_Tlvl", "_t_2_")
+    elif _t == "_t_2_":
+        _slf_chnge("_Tlvl", "_t_3_")
+    elif _t == "_t_3_":
+        _slf_chnge("_Tlvl", "_t_4_")
+    elif _t == "_t_4_":
+        _slf_chnge("_Tlvl", "_t_5_")
+    elif _t == "_t_5_":
+        _slf_chnge("_Tlvl", "_t_6_")
+    elif _t == "_t_6_":
+        _slf_chnge("_Tlvl", "_t_7_")
+    elif _t == "_t_7_":
+        _slf_chnge("_Tlvl", "_t_8_")
+    elif _t == "_t_8_":
+        _slf_chnge("_Tlvl", "_t_9_")
+    elif _t == "_t_9_":
+        _slf_chnge("_Tlvl", "_t_10_")
+    elif _t == "_t_10_":
+        print("Trust level 10 needs to be setup.")
+    _rem_con("", True)
+    _sve_con(True)
 
 
 _main()
