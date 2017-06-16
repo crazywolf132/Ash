@@ -1,13 +1,17 @@
 import os, sys
 
 _ver = "1.2.1"
-_Tlvl = "_t_1_"
+_Tlvl = "_t_2_"
 _settings = []
 _sett_con = []
 _def_sett = ["setup","encode","version","noticed_changes","AFN","trust_lev","code"]
-_def_con = ["true","23923351","","false","none","","1"]
-
-_con_file = "ash"
+_def_con = ["","","","","","",""]
+_setup = "_false_"
+_encode = "_23923351_"
+_con_file = "_ash"
+_changes = "_no"
+_AFN = "_none_"
+_code = "_1_"
 
 '''
 1   2   3   4   5   6   7   8   9
@@ -25,8 +29,7 @@ use "code" to change the value of the numbers ^^^
 
 
 def _main():
-    _def_con[2] = _ver
-    _def_con[5] = _Tlvl
+    _set_def()
     _lod_con()
     while True:
         _in = raw_input("> ")
@@ -34,9 +37,8 @@ def _main():
 
 def _proccess(_input):
     _tokens = _input.split(" ")
-    for _x in _settings:
-        _pos = _sch_con(_x, "_norm", True)
-        print("{0}={1}".format(_x, _pos))
+    if _tokens[0] == "lol":
+        _slf_chnge("_con_file", "_lolza")
 
 
 def _lod_con():
@@ -62,7 +64,7 @@ def _lod_con():
                 _tokens = _x.split("=")
                 _settings.append(_tokens[0])
                 _sett_con.append(_tokens[1])
-        _con_chck()
+        _secure()
 
 
 def _sch_con(_setting, _cons, _ret):
@@ -115,7 +117,7 @@ def _add_con(_setting, _value):
     _sett_con.append(_value)
     _def_sett.append(_setting)
     _def_con.append(_value)
-    _sve_con()
+    _sve_con(True)
 
 def _rem_con(_setting, _all):
     global _settings
@@ -142,8 +144,9 @@ def _sve_con(_def):
         while _int < _len:
             _results.append("{0}={1}\n".format(_def_sett[_int], _def_con[_int]))
             _int += 1
-        _def_con[2] = _ver
+        _set_def()
         _def_con[5] = _Tlvl
+        print(_def_con)
         with open(_con_file, 'w') as _out:
             for _x in _results:
                 _out.write(_x)
@@ -157,6 +160,15 @@ def _sve_con(_def):
         with open(_con_file, 'w') as _out:
             for _x in _results:
                 _out.write(_x)
+
+def _set_def():
+    global _def_con
+    _def_con[0] = _setup
+    _def_con[1] = _encode
+    _def_con[2] = _ver
+    _def_con[3] = _changes
+    _def_con[4] = _AFN
+    _def_con[6] = _code
 
 def _de_code(_string):
     '''
@@ -176,10 +188,12 @@ def _slf_chnge(_string, _new):
                 _results = _tokens[1][1:-1]
 
     with open("Ash.py") as f:
-        newText=f.read().replace(_results, _new)
+        newText=f.read().replace(_results, _new, 1)
 
     with open("Ash.py", "w") as f:
         f.write(newText)
+
+    _sve_con(True)
 
 def _secure():
     '''
@@ -214,9 +228,9 @@ def _secure():
         an update... if not... then raise trust level.
         '''
         ## Check online version.
-        _O_ver = "1.2.2"
-        if _O_ver >
-    elif _con_ver < _ver:
+        _up_tlvl()
+        _add_con("_verError", "true")
+
         '''
         We are newer than the _con file... lets wipe the con file...
         and upload new defaults... but keeping information like trust level...
@@ -268,14 +282,11 @@ def _secure():
             _add_con("_valError", "true")
         elif _returned_lcl == "NONE" or _returned_con == "NONE":
             _add_con("_valError", "true")
-
-
     elif _C_tlvl < _L_tlvl:
         '''
         The trust_val in the config is lower than me... lets push my current
         value to the config... then we will log it and see if it continues...
         '''
-
         _returned_con = _sch_con("_valError", "_norm", True)
         _returned_lcl = _sch_con("_valError", "_def", True)
         if _returned_lcl == "true" and _returned_con == "false":
@@ -289,14 +300,23 @@ def _secure():
             _add_con("_valError", "true")
         elif _returned_lcl == "true" and _returned_con == "true":
             _up_tlvl()
-        elif _returned_lcl == "false" and _returned_con == ""
+        elif _returned_lcl == "false" and _returned_con == "false":
+            _add_con("_valError", "true")
+        elif _returned_lcl == "NONE" or _returned_con == "NONE":
+            _add_con("_valError", "true")
+
+def _load_ver(_local):
+    global _ver
+    if _local == True:
+        return float(_ver)
+        print(float(_ver))
 
 
 def _load_tlvl(_local):
     global _Tlvl
     if _local == True:
         _t = _Tlvl
-        if _t == "_t_1_"
+        if _t == "_t_1_":
             return 1
         elif _t == "_t_2_":
             return 2
@@ -318,7 +338,7 @@ def _load_tlvl(_local):
             return 10
     else:
         _t = _sch_con("trust_lev", "_norm", True)
-        if _t == "_t_1_"
+        if _t == "_t_1_":
             return 1
         elif _t == "_t_2_":
             return 2
@@ -340,13 +360,14 @@ def _load_tlvl(_local):
             return 10
 
 def _up_tlvl():
-
-'''
-
-'''
+    '''
+    This method is just used to increase the trust level...
+    it also is used to determine what to do when ur at certain
+    trust levels...
+    '''
     global _Tlvl
     _t = _Tlvl
-    if _t == "_t_1_"
+    if _t == "_t_1_":
         _slf_chnge("_Tlvl", "_t_2_")
     elif _t == "_t_2_":
         _slf_chnge("_Tlvl", "_t_3_")
